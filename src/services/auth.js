@@ -23,6 +23,7 @@ const login = ( credentials ) => {
                 const email = data.email;
                 localStorage.setItem( KEY_TOKEN, authToken );
                 localStorage.setItem( KEY_EMAIL, JSON.stringify( email ) );
+                dispatchAuthEvents();
                 
                 return email;
             })

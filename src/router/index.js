@@ -3,24 +3,32 @@ import AppLogin from '../components/AppLogin';
 import AppHome from '../components/AppHome';
 import Team from '../components/Team';
 import Meeting from '../components/Meeting';
+// import { isAuthenticated } from '../services/auth';
+
+// const meta = {
+//     authorize: []
+// };
 
 const router = new Router({
     mode: 'history', 
     routes: [
         {
-            name: 'home',
+            name: 'login',
             path: '/',
-            component: AppHome
+            component: AppLogin,
+            // meta
         },
         {
-            name: 'login',
-            path: '/login',
-            component: AppLogin
+            name: 'home',
+            path: '/home',
+            component: AppHome,
+            // meta
         },
         {
             name: 'meeting',
             path: '/meeting',
-            component: Meeting
+            component: Meeting,
+            // meta
         },
         {
             name: 'team',
@@ -28,6 +36,16 @@ const router = new Router({
             component: Team
         }
     ]
+});
+router.beforeEach(( to, from, next ) => {
+    // Right now, role-based authorization is NOT supported
+    // if( to.meta.authorize && !isAuthenticated() ) {
+    //     next({
+    //         name: 'login'
+    //     });
+    // } else {
+        next();
+    // }
 });
 
 export default router;

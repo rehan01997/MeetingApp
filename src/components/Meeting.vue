@@ -34,49 +34,31 @@
         <!-- Add Meeting -->
         <div v-if="!toggleFilterAdd" class="search-meeting text-left p-4">
             <h3 style="color: white;">Add a new meeting</h3><hr>
-            <form action="" v-on:submit="onClickButton($event)">
+            <form action="" v-on:submit="AddMeeting($event)">
                 <div class="mar"><label for="Date">Date</label></div>
-                <input type="date" v-model="formdate" class="font-size date-btn w-100 border"> {{formdate}}
+                <input type="date" v-model="formdate" class="font-size date-btn w-100 border"> 
 
                 <div class="mar"><label for="starthour">Start time (hh:mm)</label></div>
-                <select id="startTime1" class="border" name="starthour" v-model="starthour"> {{starthour}}
-                    <option value="0" >0</option>
-                    <option value="1" >1</option>
-                    <option value="2" >2</option>
-                    <option value="3" >3</option>
+                <select id="startTime1" class="border" name="starthour" v-model="starthour">
+                    <option v-for="i in 24" :value="i-1" :key="i-1">{{i-1}}</option>
                 </select>
-                {{starthour}}
                 <strong> : </strong>
                 <select id="startminutes" class="border" name="startminutes" v-model="startminutes">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                    <option v-for="i in 60" :value="i-1" :key="i-1">{{i-1}}</option>
                 </select>
-                {{startminutes}}
                 <div class="mar"><label for="endTime">End time (hh:mm)</label></div>
                 <select id="endhour" class="border" name="endhour" v-model="endhour">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                     <option v-for="i in 25" :value="i-1" :key="i-1">{{i-1}}</option>
                 </select>
-                {{endhour}}
                 <strong> : </strong>
                 <select id="endminutes" class="border" name="endminutes" v-model="endminutes">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                    <option v-for="i in 60" :value="i-1" :key="i-1">{{i-1}}</option>
                 </select>
-                {{endminutes}}
                 <div class="mar"><label for="search">Description</label></div>
                 <div class="mar"><input type="text" class="search-btn w-100 border pl-2" placeholder="What is agenda of the meeting?" v-model="description"></div>
                 <div class="mar"><label for="emailAttendees">Email ID's of attendees, or team's short</label></div>
                 <div class="mar"><input type="text" class="search-btn w-100 border pl-2 mb-3" placeholder="john@example.com, @annual-day, mark@example.com" v-model="emailattendees"></div>
                 <button type="submit" class="btn btn-primary" >Add meeting</button>
-                {{description}}
-                {{emailattendees}}
             </form>
         </div> 
 
@@ -84,7 +66,7 @@
         
         <!-- meeting cards -->
         <div class="containermeeting" v-for="meetingdetail in meetingdetaillist" :key="meetingdetail._id"> 
-            <MeetingCard :meetingdetail="meetingdetail" :users="allusers" v-on:addtomeeting="addUserToMeeting($event)" />
+            <MeetingCard :meetingdetail="meetingdetail" :users="allusers" v-on:excuseyour="excuseYourSelf($event)" v-on:addtomeeting="addUserToMeeting($event)" />
         </div>     
     </div>  
 </template>
@@ -92,7 +74,7 @@
 <script>
 
 import { format } from 'date-fns';
-import { searchMeetingDateWord , getAllUsers, AddToMeeting} from '../services/meeting'
+import { searchMeetingDateWord , getAllUsers, AddToMeeting, AddMeeting, excuseYourSelfFromMeeting} from '../services/meeting'
 import MeetingCard from './MeetingCard';
 export default {
     name : 'Meeting',
@@ -124,7 +106,6 @@ export default {
 
         getAllUsers()
         .then( alluser =>{
-            // console.log(alluser);
             this.allusers = alluser;
         });
     },
@@ -154,9 +135,48 @@ export default {
         {
             console.log(event);
             AddToMeeting(event.memberid, event.meetingid)
-            .then( data =>{
+            .then( data => {
                 console.log(data);
             })
+            .then( () => {
+                this.meetingdetaillist = [];
+                searchMeetingDateWord("" , "all")
+                .then(x =>{
+                    this.meetingdetaillist = x;
+                });
+            });
+        },
+        AddMeeting(event)
+        {
+            event.preventDefault();
+            var obj = { 
+                "name": "unknown",
+                "description": this.description,
+                "date": this.formdate,
+                "startTime": { "hours": this.starthour, "minutes": this.startminutes },
+                "endTime": { "hours": this.endhour, "minutes": this.endminutes },
+                "attendees": [ ] 
+                }
+            
+            AddMeeting(obj)
+            .then(  () => {
+                searchMeetingDateWord("" , "all")
+                .then(x =>{
+                    this.meetingdetaillist = x;
+                });
+            });
+        },
+        excuseYourSelf(event){
+            excuseYourSelfFromMeeting(event)
+            .then(() =>{
+                alert("You were removed from meeting.")
+            })
+            .then(()=>{
+                searchMeetingDateWord("" , "all")
+                .then(x =>{
+                    this.meetingdetaillist = x;
+                });
+            });
         }
     }
 }

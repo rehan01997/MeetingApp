@@ -21,7 +21,6 @@
             <!-- meeting scheduled div -->
             <calenderCard v-for="calcards in calendercards" :meetingname="calcards.meetingname" :attendees="calcards.attendees" :topposition="calcards.topposition" :height="calcards.height" :key="calcards.name"/>
         </div>
-
     </div>
 </template>
 

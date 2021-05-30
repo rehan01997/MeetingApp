@@ -17,7 +17,6 @@
 <script>
 
 import { format } from 'date-fns';
-import { excuseYourSelfFromMeeting } from '../services/meeting'
 export default {
     name : 'MeetingCard',
     props : {
@@ -56,10 +55,10 @@ export default {
     },
     methods : {
         excuseYourself(){
-            excuseYourSelfFromMeeting(this.meetingdetail._id)
-            .then(() =>{
-                alert("You were removed from meeting.")
-            });
+            if( this.meetingdetail._id ){
+                console.log("Excuse your self from meeting")
+                this.$emit( 'excuseyour', this.meetingdetail._id );
+            }
         },
         AddToMeeting(event)
         {

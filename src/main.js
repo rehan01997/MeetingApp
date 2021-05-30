@@ -8,6 +8,6 @@ import './init';
 
 
 new Vue({
+  router,
   render: h => h(App),
-  router
 }).$mount('#app')
