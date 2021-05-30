@@ -21,3 +21,10 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+my-project
+
+weather-project
+
+workshops-app
+
+/node_modules
