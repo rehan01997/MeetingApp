@@ -2,14 +2,14 @@
         <div id="app">
         <AppNavbar />
         <div class="container my-4">
-            <router-view />
+            <router-view></router-view>
         </div>
     </div>
 </template>
 
 <script>
 
-import AppNavbar from './components/AppNavbar'; 
+import AppNavbar from '@/components/AppNavbar'; 
 export default {
   name: 'App',
   components: {

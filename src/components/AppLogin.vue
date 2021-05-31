@@ -14,16 +14,17 @@
                             id="email"
                             placeholder="john.doe@example.com"
                             v-model="form.email"
+                            @blur="$v.form.email.$touch()"
                             :class="{
-                                'is-invalid': shouldAppendErrorClass(form.email),
-                                'is-valid': shouldAppendValidClass(form.email)
+                                'is-invalid': shouldAppendErrorClass($v.form.email),
+                                'is-valid': shouldAppendValidClass($v.form.email)
                             }"
                         />
-                        <div v-if="form.email.$error">
-                            <div v-if="!form.email.required" class="error-message">
+                        <div v-if="$v.form.email.$error">
+                            <div v-if="!$v.form.email.required" class="error-message">
                                 <small>The email field is required</small>
                             </div>
-                            <div v-if="!form.email.email" class="error-message">
+                            <div v-if="!$v.form.email.email" class="error-message">
                                 <small>Invalid email address</small>
                             </div>
                         </div>
@@ -37,22 +38,35 @@
                             name="password"
                             id="password"
                             v-model="form.password"
+                            @blur="$v.form.password.$touch()"
                             :class="{
-                                'is-invalid': shouldAppendErrorClass(form.password),
-                                'is-valid': shouldAppendValidClass(form.password)
+                                'is-invalid': shouldAppendErrorClass($v.form.password),
+                                'is-valid': shouldAppendValidClass($v.form.password)
                             }"
                         /> 
-                        <div v-if="form.password.$error">
-                            <div v-if="!form.password.required" class="error-message">
-                                <small>The password is required</small>
+                        <div v-if="$v.form.password.$error">
+                            <div v-if="!$v.form.password.required" class="error-message">
+                                <small>The password field is required</small>
                             </div>
-                            <div v-if="!form.password.minLength" class="error-message">
-                                <small>Password MUST have at least 8 characters</small>
+                            <div v-if="!$v.form.password.minLength" class="error-message">
+                                <small>The password must have at least 8 characters</small>
+                            </div>
+                            <div v-if="!$v.form.password.containsUppercase" class="error-message">
+                                <small>The password must have at least 1 uppercase character</small>
+                            </div>
+                            <div v-if="!$v.form.password.containsLowercase" class="error-message">
+                                <small>The password must have at least 1 lowercase character</small>
+                            </div>
+                            <div v-if="!$v.form.password.containsNumber" class="error-message">
+                                <small>The password must have at least 1 digit</small>
+                            </div>
+                            <div v-if="!$v.form.password.containsSpecial" class="error-message">
+                                <small>The password must have at least 1 special character</small>
                             </div>
                         </div>
                     </div>
                      <div class="form-group">
-                        <button class="btn btn-primary" :disabled="form.$invalid">Login</button>
+                        <button class="btn btn-primary" :disabled="$v.form.$invalid">Login</button>
                         <app-spinner v-if="processing" />
                     </div> 
                 </form>
@@ -63,7 +77,7 @@
 
 <script>
     import Vue from 'vue';
-    import { email, required, minLength } from 'vuelidate/lib/validators'
+    import { required, minLength, email} from 'vuelidate/lib/validators';
     import { login } from '@/services/auth';
 
     export default {
@@ -76,8 +90,7 @@
                     password: ''
                 }
             };
-        }
-        ,
+        },
         validations: {
             form: {
                 email: {
@@ -86,7 +99,19 @@
                 },
                 password: {
                     required,
-                    minLength: minLength( 8 )
+                    minLength: minLength( 8 ),
+                        containsUppercase: function(value) {
+                        return /[A-Z]/.test(value)
+                    },
+                    containsLowercase: function(value) {
+                        return /[a-z]/.test(value)
+                    },
+                    containsNumber: function(value) {
+                        return /[0-9]/.test(value)
+                    },
+                    containsSpecial: function(value) {
+                        return /[#?!@$%^&*-]/.test(value)
+                    }
                 }
             }
         },
@@ -98,9 +123,6 @@
                 return !field.$invalid && field.$model && field.$dirty;
             },
             login() {
-                // mark the inputs as touched (revalidating for safety)
-                // this.form.$touch();
-
                 if( !this.form.$invalid ) {
                     login( this.form )
                         .then( () => this.$router.push( { name: 'home' } ) )

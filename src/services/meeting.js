@@ -52,3 +52,14 @@ export const AddToMeeting = (memberid, meetingid) => {
         })
         .then( response => response.data);
 };
+
+export const AddMeeting = (data) => {
+    console.log(data);
+    return axios.post(`https://mymeetingsapp.herokuapp.com/api/meetings`,
+    data,
+    {
+        headers: { 
+            'Authorization': getToken()
+        },
+    }).then( response => response.data);
+}

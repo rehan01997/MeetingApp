@@ -42,7 +42,7 @@ export default {
                 { name : 'meeting' },
                 { name : 'team' }
             ],
-            isAuthenticated: true,
+            isAuthenticated: false,
             email: ''
         };
     },
